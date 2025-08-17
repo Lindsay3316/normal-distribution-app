@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Normal Distribution</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    input { margin-right: 10px; padding: 5px; width: 80px; }
+  </style>
+</head>
+<body>
+  <h1>Interactive Normal Distribution</h1>
+  <label>Mean (μ): <input type="number" id="mean" value="0"></label>
+  <label>Std Dev (σ): <input type="number" id="std" value="1" step="0.1" min="0.1"></label>
+  <button onclick="drawChart()">Draw</button>
+  <canvas id="chart" width="600" height="300"></canvas>
+
+  <script>
+    function generateNormalData(mean, std) {
+      const data = [];
+      const labels = [];
+      for (let x = mean - 4*std; x <= mean + 4*std; x += 0.1) {
+        const y = (1 / (std * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean)/std, 2));
+        data.push(y);
+        labels.push(x.toFixed(2));
+      }
+      return { labels, data };
+    }
+
+    let chartInstance = null;
+    function drawChart() {
+      const mean = parseFloat(document.getElementById('mean').value);
+      const std = parseFloat(document.getElementById('std').value);
+      const normalData = generateNormalData(mean, std);
+
+      const ctx = document.getElementById('chart').getContext('2d');
+      if (chartInstance) chartInstance.destroy();
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: normalData.labels,
+          datasets: [{
+            label: 'Normal Distribution',
+            data: normalData.data,
+            borderColor: 'blue',
+            fill: false,
+          }]
+        },
+        options: {
+          responsive: false,
+          scales: { x: { title: { display: true, text: 'X' } }, y: { title: { display: true, text: 'Probability Density' } } }
+        }
+      });
+    }
+
+    drawChart();
+  </script>
+</body>
+</html>
